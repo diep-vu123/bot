@@ -75,9 +75,7 @@ async def search_product(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     query = update.message.text.strip().upper()
 
-    # =================================
-    # TIM CHINH XAC MA SP
-    # =================================
+    # TIM CHINH XAC
     if query in product_data:
 
         product = product_data[query]
@@ -92,9 +90,7 @@ async def search_product(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text(response)
         return
 
-    # =================================
-    # TIM THEO TEN SAN PHAM
-    # =================================
+    # TIM THEO TEN
     matched_products = []
 
     for code, product in product_data.items():
@@ -108,9 +104,6 @@ async def search_product(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 f"Gia: {product['price']}"
             )
 
-    # =================================
-    # NEU TIM THAY TEN
-    # =================================
     if matched_products:
 
         result = "\n\n".join(matched_products[:10])
@@ -121,9 +114,7 @@ async def search_product(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
         return
 
-    # =================================
-    # TIM GAN DUNG MA SP
-    # =================================
+    # TIM GAN DUNG
     similar_products = []
 
     for code in product_data.keys():
@@ -131,23 +122,19 @@ async def search_product(update: Update, context: ContextTypes.DEFAULT_TYPE):
         if query in code:
             similar_products.append(code)
 
-    # =================================
     # HIEN THI NUT BAM
-    # =================================
     if similar_products:
 
         keyboard = []
 
         for code in similar_products[:10]:
 
-            keyboard.append(
-                [
-                    InlineKeyboardButton(
-                        text=code,
-                        callback_data=code
-                    )
-                ]
-            )
+            keyboard.append([
+                InlineKeyboardButton(
+                    text=code,
+                    callback_data=code
+                )
+            ])
 
         reply_markup = InlineKeyboardMarkup(keyboard)
 
@@ -161,6 +148,31 @@ async def search_product(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text(
             "Khong tim thay san pham."
         )
+
+
+# =================================
+# XU LY NUT BAM
+# =================================
+async def button_click(update: Update, context: ContextTypes.DEFAULT_TYPE):
+
+    query = update.callback_query
+
+    await query.answer()
+
+    product_code = query.data
+
+    if product_code in product_data:
+
+        product = product_data[product_code]
+
+        response = (
+            f"Ma SP: {product_code}\n"
+            f"Ten SP: {product['name']}\n"
+            f"Ghi chu: {product['note']}\n"
+            f"Gia ban: {product['price']}"
+        )
+
+        await query.message.reply_text(response)
 # =================================
 # MAIN
 # =================================
