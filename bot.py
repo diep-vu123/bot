@@ -8,6 +8,9 @@ from telegram.ext import (
     ContextTypes,
     CommandHandler
 )
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup
+from telegram.ext import CallbackQueryHandler
+
 
 # =================================
 # TOKEN
@@ -69,6 +72,26 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 # TIM SAN PHAM
 # =================================
 async def search_product(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def button_click(update: Update, context: ContextTypes.DEFAULT_TYPE):
+
+    query = update.callback_query
+
+    await query.answer()
+
+    product_code = query.data
+
+    if product_code in product_data:
+
+        product = product_data[product_code]
+
+        response = (
+            f"Ma SP: {product_code}\n"
+            f"Ten SP: {product['name']}\n"
+            f"Ghi chu: {product['note']}\n"
+            f"Gia ban: {product['price']}"
+        )
+
+        await query.message.reply_text(response)
 
     query = update.message.text.strip().upper()
 
@@ -124,6 +147,7 @@ async def search_product(update: Update, context: ContextTypes.DEFAULT_TYPE):
     # TIM GAN DUNG MA SP
     # =================================
     similar_products = []
+
     for code in product_data.keys():
 
         if query in code:
@@ -131,11 +155,24 @@ async def search_product(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     if similar_products:
 
-        result = "\n".join(similar_products[:10])
+        keyboard = []
+
+        for code in similar_products[:10]:
+
+            keyboard.append(
+                [
+                    InlineKeyboardButton(
+                        code,
+                        callback_data=code
+                    )
+                ]
+            )
+
+        reply_markup = InlineKeyboardMarkup(keyboard)
 
         await update.message.reply_text(
-            f"Khong tim thay ma chinh xac.\n\n"
-            f"Ban co muon tim:\n{result}"
+            "Khong tim thay ma chinh xac.\n\nBan co muon tim:",
+            reply_markup=reply_markup
         )
 
     else:
@@ -143,7 +180,6 @@ async def search_product(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text(
             "Khong tim thay san pham."
         )
-
 
 # =================================
 # MAIN
@@ -160,7 +196,7 @@ def main():
             search_product
         )
     )
-
+    app.add_handler(CallbackQueryHandler(button_click))
     print("Bot dang chay...")
 
     app.run_polling()
