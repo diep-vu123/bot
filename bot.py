@@ -72,26 +72,6 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 # TIM SAN PHAM
 # =================================
 async def search_product(update: Update, context: ContextTypes.DEFAULT_TYPE):
-async def button_click(update: Update, context: ContextTypes.DEFAULT_TYPE):
-
-    query = update.callback_query
-
-    await query.answer()
-
-    product_code = query.data
-
-    if product_code in product_data:
-
-        product = product_data[product_code]
-
-        response = (
-            f"Ma SP: {product_code}\n"
-            f"Ten SP: {product['name']}\n"
-            f"Ghi chu: {product['note']}\n"
-            f"Gia ban: {product['price']}"
-        )
-
-        await query.message.reply_text(response)
 
     query = update.message.text.strip().upper()
 
@@ -119,9 +99,7 @@ async def button_click(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     for code, product in product_data.items():
 
-        product_name = product["name"].upper()
-
-        if query in product_name:
+        if query in product["name"].upper():
 
             matched_products.append(
                 f"Ma SP: {code}\n"
@@ -153,6 +131,9 @@ async def button_click(update: Update, context: ContextTypes.DEFAULT_TYPE):
         if query in code:
             similar_products.append(code)
 
+    # =================================
+    # HIEN THI NUT BAM
+    # =================================
     if similar_products:
 
         keyboard = []
@@ -162,7 +143,7 @@ async def button_click(update: Update, context: ContextTypes.DEFAULT_TYPE):
             keyboard.append(
                 [
                     InlineKeyboardButton(
-                        code,
+                        text=code,
                         callback_data=code
                     )
                 ]
@@ -180,7 +161,6 @@ async def button_click(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text(
             "Khong tim thay san pham."
         )
-
 # =================================
 # MAIN
 # =================================
